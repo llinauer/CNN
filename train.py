@@ -13,7 +13,9 @@ from typing import List, Tuple
 from jax import random as jrandom
 from jax.typing import ArrayLike
 from jax.scipy.special import logsumexp
+from jax.typing import DTypeLike
 import jax.numpy as jnp
+from jax import vmap
 
 from get_data import get_mnist_data
 
@@ -59,6 +61,27 @@ def predict(params: List[Tuple], image: ArrayLike):
     final_w, final_b = params[-1]
     logits = jnp.dot(final_w, activations) + final_b
     return logits - logsumexp(logits)
+
+def one_hot(x: ArrayLike, k: int, dtype: DTypeLike = jnp.float32) -> ArrayLike:
+    """ One-hot encode the array x with k different classes """
+    return jnp.array(x[:, None] == jnp.arange(k), dtype)
+
+
+def accuracy(params: List[Tuple], images: ArrayLike, targets: ArrayLike) -> ArrayLike:
+    """ Calculate the accuracy of the prediction on images. Targets need to be
+        one-hot encoded"""
+    target_class = jnp.argmax(targets, axis=1)
+    batched_predict = vmap(predict, in_axes=(None, 0))
+    predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
+    return jnp.mean(predicted_class == target_class)
+
+def loss(params: List[Tuple], images: ArrayLike, targets: ArrayLike) -> ArrayLike:
+    """ Calculate the cross-entropy loss of the predictions on images.
+        Targets need to be one-hot encoded.
+        Cross-entropy loss = -log(p_c) from correct class """
+    batched_predict = vmap(predict, in_axes=(None, 0))
+    preds = batched_predict(params, images)
+    return -jnp.mean(preds * targets)
 
 
 if __name__ == '__main__':
