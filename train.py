@@ -12,6 +12,8 @@ from typing import List, Tuple
 
 from jax import random as jrandom
 from jax.typing import ArrayLike
+from jax.scipy.special import logsumexp
+import jax.numpy as jnp
 
 from get_data import get_mnist_data
 
@@ -37,6 +39,26 @@ def init_dense_layer(input_dim, output_dim, prng_key, scale=1e-2) -> Tuple[Array
 
     w_key, b_key = jrandom.split(prng_key)
     return scale * jrandom.normal(w_key, (output_dim, input_dim)), scale * jrandom.normal(b_key, (output_dim,))
+
+
+def relu(x):
+    """ ReLU activation function """
+    return jnp.maximum(0, x)
+
+
+def predict(params: List[Tuple], image: ArrayLike):
+    """ Predict which out of 10 digits the input image belongs to """
+    
+    activations = image
+    
+    # loop over all layers up to the last
+    for w, b in params[:-1]:
+        out = jnp.dot(w, activations) + b
+        activations = relu(out)
+
+    final_w, final_b = params[-1]
+    logits = jnp.dot(final_w, activations) + final_b
+    return logits - logsumexp(logits)
 
 
 if __name__ == '__main__':
