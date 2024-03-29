@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "cnn"
+version = "0.1.0"
+description = "CNN - Classifying Newtonian Network"
+authors = ["llinauer <l.linauer@gmx.at>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+jax = "^0.4.25"
+plotly = "^5.20.0"
+jaxlib = "^0.4.25"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
