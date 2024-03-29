@@ -1,6 +1,6 @@
 """
 
-get_mnist.py
+get_data.py
 
 Load the MNIST dataset
 
