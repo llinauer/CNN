@@ -12,6 +12,7 @@ plotly = "^5.20.0"
 jaxlib = "^0.4.25"
 scikit-learn = "^1.4.1.post1"
 pandas = "^2.2.1"
+isort = "^5.13.2"
 
 
 [build-system]
