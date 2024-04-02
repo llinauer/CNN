@@ -15,7 +15,7 @@ from jax.typing import ArrayLike
 from jax.scipy.special import logsumexp
 from jax.typing import DTypeLike
 import jax.numpy as jnp
-from jax import vmap
+from jax import jit, vmap
 
 from get_data import get_mnist_data
 
@@ -82,6 +82,23 @@ def loss(params: List[Tuple], images: ArrayLike, targets: ArrayLike) -> ArrayLik
     batched_predict = vmap(predict, in_axes=(None, 0))
     preds = batched_predict(params, images)
     return -jnp.mean(preds * targets)
+
+@jit
+def grad_step(params: List[Tuple], x: ArrayLike, y: ArrayLike, step_size: float) -> List[Tuple]:
+    """ Update the weights and biases with a gradient descent step
+    """
+
+    grads = grad(loss)(params, x, y)
+    return [(w - step_size * dw, b - step_size * db)
+            for (w, b), (dw, db) in zip(params, grads)]
+
+@jit
+def newton_step(params: List[Tuple], x: ArrayLike, y: ArrayLike) -> List[Tuple]:
+    """ Update the weights and biases with a step of Newton's method
+    """
+
+    # calculate the jacobian and the hessian of the loss w.r.t. to the parameters
+    pass
 
 
 if __name__ == '__main__':
